@@ -11,6 +11,9 @@ program
   .description('Application simple description')
   .option('-f, --foo', 'enable some foo')
   .option('-b, --bar', 'enable some bar')
+    .on('bar', function(){
+        console.log('---options.bar---');
+    })
   .option('-B, --baz', 'enable some baz')
   .parse(process.argv);
 

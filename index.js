@@ -80,12 +80,18 @@ Option.prototype.is = function(arg) {
  */
 
 function Command(name) {
-  this.commands = [];
-  this.options = [];
-  this._execs = [];
-  this._allowUnknownOption = false;
-  this._args = [];
+  //TODO:实例化
   this._name = name;
+  this._allowUnknownOption = false;
+
+  //TODO: command(name, desc)
+  //this._description;
+  this.commands = [];
+  this._execs = [];
+  this._args = [];
+
+  //TODO: option(flags, description, fn, defaultValue)
+  this.options = [];
 }
 
 /**
@@ -243,7 +249,7 @@ Command.prototype.parseExpectedArgs = function(args) {
  * @return {Command} for chaining
  * @api public
  */
-
+//TODO: action ??
 Command.prototype.action = function(fn) {
   var self = this;
   var listener = function(args, unknown) {
@@ -422,8 +428,7 @@ Command.prototype.parse = function(argv) {
   this.rawArgs = argv;
   console.log('argv', argv);
 
-  // guess name
-  //console.log('before.this._name', this._name);
+  //TODO: guess name ._name [parse 文件名->._name]
   this._name = this._name || basename(argv[1], '.js');
   //console.log('after.this._name',this._name);
 
@@ -652,11 +657,16 @@ Command.prototype.parseOptions = function(argv) {
     // option is defined
     if (option) {
       // requires arg
-      //TODO:matched!1)必须参数值2)可选参数值3)不处理参数值
+        /**
+         * TODO: emit [parse -> parseOptions 触发事件]
+         * 1) matched? 1-必须参数值,2-可选参数值,3-不处理参数值
+         * 2)
+         */
       if (option.required) {
         arg = argv[++i];
         if (null == arg) return this.optionMissingArgument(option);
         this.emit(option.name(), arg);
+        console.log('option.required.emit', option.name());
       // optional arg
       } else if (option.optional) {
         arg = argv[i+1];
@@ -666,12 +676,11 @@ Command.prototype.parseOptions = function(argv) {
           ++i;
         }
         console.log('arg', arg, i);
-
-        //TODO: emit [parse -> parseOptions 触发事件]
         this.emit(option.name(), arg);
-      // bool
+        console.log('option.optional.emit', option.name());
       } else {
         this.emit(option.name());
+        console.log('option.[other].emit', option.name());
       }
       continue;
     }
@@ -791,6 +800,7 @@ Command.prototype.version = function(str, flags) {
   if (0 == arguments.length) return this._version;
   this._version = str;
   flags = flags || '-V, --version';
+  //TODO: 添加版本 [<- option()]
   this.option(flags, 'output the version number');
   this.on('version', function() {
     process.stdout.write(str + '\n');
@@ -837,7 +847,7 @@ Command.prototype.alias = function(alias) {
 
 Command.prototype.usage = function(str) {
   console.log('this._args', this._args);
-  //TODO: Get this._args ??[usage 获取参数]
+  //TODO: Get this._args[usage 获取参数 <- command()]
   var args = this._args.map(function(arg) {
     return humanReadableArgName(arg);
   });
@@ -996,6 +1006,7 @@ Command.prototype.helpInformation = function() {
 
 Command.prototype.outputHelp = function() {
   process.stdout.write(this.helpInformation());
+  //TODO: 触发'--help'事件 [<- outputHelp]
   this.emit('--help');
 };
 
