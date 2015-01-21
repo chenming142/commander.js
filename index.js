@@ -219,6 +219,7 @@ Command.prototype.parseExpectedArgs = function(args) {
       argDetails.name = argDetails.name.slice(0, -3);
     }
     if (argDetails.name) {
+      //TODO: self._args [command -> parseExpectedArgs 设置._args = {name:'', required:'',variadic:'...' }]
       self._args.push(argDetails);
     }
   });
@@ -366,6 +367,7 @@ Command.prototype.option = function(flags, description, fn, defaultValue) {
 
   // when it's passed assign the value
   // and conditionally invoke the callback
+  //TODO : on  [option 注册事件]
   this.on(oname, function(val) {
     // coercion
     if (null !== val && fn) val = fn(val, undefined === self[name]
@@ -417,19 +419,25 @@ Command.prototype.parse = function(argv) {
 
   // store raw args
   this.rawArgs = argv;
+  console.log('argv', argv);
 
   // guess name
+  //console.log('before.this._name', this._name);
   this._name = this._name || basename(argv[1], '.js');
+  //console.log('after.this._name',this._name);
 
   // process argv
   var parsed = this.parseOptions(this.normalize(argv.slice(2)));
+  console.log('parsed', parsed);
   var args = this.args = parsed.args;
 
   var result = this.parseArgs(this.args, parsed.unknown);
 
   // executable sub-commands
   var name = result.args[0];
+  console.log('this._execs', this._execs);
   if (this._execs[name] && typeof this._execs[name] != "function") {
+    console.log('---no-exec---');
     return this.executeSubCommand(argv, args, parsed.unknown);
   }
 
@@ -512,26 +520,40 @@ Command.prototype.normalize = function(args) {
 
   for (var i = 0, len = args.length; i < len; ++i) {
     arg = args[i];
+    console.log('arg', arg, i);
     if (i > 0) {
       lastOpt = this.optionFor(args[i-1]);
     }
-
+      /**
+       * TODO: 判断条件 [normalize 解释参数与参数值]
+       * 1) --
+       * 2)是 Option且required
+       * 3)是 -[a-z]+,{short flags}
+       * 4)非--开头，且存在‘=’
+       * 5)other
+       */
     if (arg === '--') {
+      console.log('normalize', 1);
       // Honor option terminator
       ret = ret.concat(args.slice(i));
       break;
     } else if (lastOpt && lastOpt.required) {
+      console.log('normalize', 2);
       ret.push(arg);
     } else if (arg.length > 1 && '-' == arg[0] && '-' != arg[1]) {
+      console.log('normalize', 3);
       arg.slice(1).split('').forEach(function(c) {
         ret.push('-' + c);
       });
     } else if (/^--/.test(arg) && ~(index = arg.indexOf('='))) {
-      ret.push(arg.slice(0, index), arg.slice(index + 1));
+        console.log('normalize', 4);
+        ret.push(arg.slice(0, index), arg.slice(index + 1));
     } else {
+      console.log('normalize', 5);
       ret.push(arg);
     }
   }
+    console.log('ret', ret);
 
   return ret;
 };
@@ -553,12 +575,14 @@ Command.prototype.parseArgs = function(args, unknown) {
 
   if (args.length) {
     name = args[0];
+    //TODO: this.listeners ?? [parseOptions | parseArgs 解释 like args 参数与unknown参数]
     if (this.listeners(name).length) {
       this.emit(args.shift(), args, unknown);
     } else {
       this.emit('*', args);
     }
   } else {
+    //TODO: -h|--help [parseArgs -> 帮助说明]
     outputHelpIfNecessary(this, unknown);
 
     // If there were no args and we have unknown options,
@@ -622,10 +646,12 @@ Command.prototype.parseOptions = function(argv) {
 
     // find matching Option
     option = this.optionFor(arg);
+    console.log('option', option);
 
     // option is defined
     if (option) {
       // requires arg
+      //TODO:matched!1)必须参数值2)可选参数值3)不处理参数值
       if (option.required) {
         arg = argv[++i];
         if (null == arg) return this.optionMissingArgument(option);
@@ -638,6 +664,9 @@ Command.prototype.parseOptions = function(argv) {
         } else {
           ++i;
         }
+        console.log('arg', arg, i);
+
+        //TODO: emit [parse -> parseOptions 触发事件]
         this.emit(option.name(), arg);
       // bool
       } else {
@@ -806,6 +835,8 @@ Command.prototype.alias = function(alias) {
  */
 
 Command.prototype.usage = function(str) {
+  console.log('this._args', this._args);
+  //TODO: Get this._args ??[usage 获取参数]
   var args = this._args.map(function(arg) {
     return humanReadableArgName(arg);
   });
@@ -914,6 +945,7 @@ Command.prototype.commandHelp = function() {
  */
 
 Command.prototype.helpInformation = function() {
+  //TODO: 帮助信息 [outputHelpIfNecessary -> outputHelp -> helpInformation]
   var desc = [];
   if (this._description) {
     desc = [
