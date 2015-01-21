@@ -223,6 +223,7 @@ Command.prototype.parseExpectedArgs = function(args) {
       self._args.push(argDetails);
     }
   });
+  console.log('self._args', self._args);
   return this;
 };
 
@@ -902,8 +903,9 @@ Command.prototype.optionHelp = function() {
  */
 
 Command.prototype.commandHelp = function() {
+  //TODO: 打印command帮助信息 [helpInformation -> commandHelp]
   if (!this.commands.length) return '';
-
+  //TODO: ._args | .commands -> this.command()
   var commands = this.commands.map(function(cmd) {
     var args = cmd._args.map(function(arg) {
       return humanReadableArgName(arg);
@@ -911,12 +913,8 @@ Command.prototype.commandHelp = function() {
 
     return [
       cmd._name
-        + (cmd._alias
-          ? '|' + cmd._alias
-          : '')
-        + (cmd.options.length
-          ? ' [options]'
-          : '')
+        + (cmd._alias ? '|' + cmd._alias : '')
+        + (cmd.options.length ? ' [options]' : '')
         + ' ' + args
     , cmd.description()
     ];
@@ -945,7 +943,14 @@ Command.prototype.commandHelp = function() {
  */
 
 Command.prototype.helpInformation = function() {
-  //TODO: 帮助信息 [outputHelpIfNecessary -> outputHelp -> helpInformation]
+    /**
+     * TODO: 帮助信息 [outputHelpIfNecessary -> outputHelp -> helpInformation]
+     * 包含：
+     * 1) Usage [name | alias]
+     * 2) cmds
+     * 3) description
+     * 4) Options
+     */
   var desc = [];
   if (this._description) {
     desc = [
