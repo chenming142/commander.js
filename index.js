@@ -70,12 +70,18 @@ Option.prototype.is = function(arg) {
  * @api public
  */
 function Command(name) {
-  this.commands = [];
-  this.options = [];
-  this._execs = [];
-  this._allowUnknownOption = false;
-  this._args = [];
+  //TODO:实例化
   this._name = name;
+  this._allowUnknownOption = false;
+
+  //TODO: command(name, desc)
+  //this._description;
+  this.commands = [];
+  this._execs = [];
+  this._args = [];
+
+  //TODO: option(flags, description, fn, defaultValue)
+  this.options = [];
 }
 /**
  * Inherit from `EventEmitter.prototype`.
@@ -443,7 +449,6 @@ Command.prototype.parse = function(argv) {
         console.log('---no-exec---');
         return this.executeSubCommand(argv, args, parsed.unknown);
     }
-
     return result;
 };
 /**
